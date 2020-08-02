@@ -110,7 +110,8 @@ text(as.Date("2007-01-01"), 200,  "Ouro", col = "red")
 text(as.Date("2010-01-01"), 100,  "Boi")
 
 dev.off()
-paste0 (max((dfprecos$preco), na.rm = TRUE))
+
+
 
 ```
 
