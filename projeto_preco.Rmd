@@ -5,25 +5,113 @@ date: "01/08/2020"
 output: html_document
 ---
 
+
+```{r anotacoes}
+
+# melhorias desse projeto:
+# fazer uma funcao que importa os dados de uma unica planilha com purr map, já colar os dados organizados por mes na planilha
+
+# fazer uma funcao que voce escolhe duas comodities e ele faz o gráfico
+
+
+# Atalhos
+
 # Collapse — Alt+L.
 # Expand — Shift+Alt+L.
 # Collapse All — Alt+O.
 # Expand All — Shift+Alt+O.
 
 
+```
+
+
 ```{r setup}
 
 library(tidyverse)
 library(readxl)
-
+library(lubridate)
 ```
 
+
+
 ```{r}
+
+# importa ouro
 ouro_indexMundi <- read_excel("dados/ouro_indexMundi.xlsx")
 head(ouro_indexMundi)
 
-plot(ouro_indexMundi$data, ouro_indexMundi$preco,type="l", main = "ouro", ylab = "Preço Dolar",
-     xlab = "Ano")
+# importa boi
+boi <- read_excel("dados/boiCepea.xls", skip = 3)
+
+# edita boi para > 2005
+boi %>% 
+  mutate(Data=dmy(Data)) %>% 
+  filter(Data>"2004-12-31")-> boi
+
+head(boi)
+
+
+
+```
+
+
+
+# padroniza df
+
+```{r}
+
+# organiza ouro
+ouro_indexMundi %>% 
+  mutate(soma=lead(preco,1), cum=(soma/preco-1), cum2= 100*(1+(cumsum(cum)))) %>% 
+  select(1,6) %>% 
+  rename(preco=cum2) %>% 
+  mutate(nome="ouro") -> dfprecos
+
+
+# organiza boi
+boi %>% 
+  rename(real= `À vista R$`) %>% 
+  mutate(soma=lead(real,1), cum=(soma/real-1), cum2= 100*(1+(cumsum(cum)))) %>% 
+  select(1,6) %>% 
+  rename(preco=cum2) %>% 
+  mutate(nome="boi") %>% 
+  group_by(ano=year(Data), mes=month(Data)) %>% 
+  summarise(preco=mean(preco)) %>% 
+  mutate(data=make_date(ano, mes, 1))  -> group_boi 
+
+
+dataFrameBOI <- data.frame(group_boi)
+  
+dataFrameBOI %>% 
+  select(4,3) %>% 
+  mutate(nome="boi")-> BoiMes
+
+# ajusta a data para ymd
+
+dfprecos <- dfprecos %>% 
+  mutate(data=ymd(data))
+
+head(BoiMes)
+boi_ouro <- bind_rows(BoiMes, dfprecos)
+
+
+```
+
+# cria o data frame
+
+```{r}
+
+pdf("plot.pdf")
+
+plot(x = BoiMes$data, y = BoiMes$preco, type = "l", 
+     ylim = c(0, 300), xlab = "ano", ylab = "preco", main = "comparação Ouro x Boi (base 100) ")
+lines(dfprecos$data, dfprecos$preco, type = "l", col = "red") 
+text(as.Date("2007-01-01"), 200,  "Ouro", col = "red")
+text(as.Date("2010-01-01"), 100,  "Boi")
+
+dev.off()
+paste0 (max((dfprecos$preco), na.rm = TRUE))
+
 ```
 
 
