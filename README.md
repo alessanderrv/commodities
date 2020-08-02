@@ -1,3 +1,3 @@
 # commodities
 preco de ouro , boi e outros
-muito bom esse projeto
+muito bom e valioso
