@@ -1,0 +1,29 @@
+---
+title: "projeto_preco"
+author: "alessander"
+date: "01/08/2020"
+output: html_document
+---
+
+# Collapse — Alt+L.
+# Expand — Shift+Alt+L.
+# Collapse All — Alt+O.
+# Expand All — Shift+Alt+O.
+
+
+```{r setup}
+
+library(tidyverse)
+library(readxl)
+
+```
+
+```{r}
+ouro_indexMundi <- read_excel("dados/ouro_indexMundi.xlsx")
+head(ouro_indexMundi)
+
+plot(ouro_indexMundi$data, ouro_indexMundi$preco,type="l", main = "ouro", ylab = "Preço Dolar",
+     xlab = "Ano")
+```
+
+
